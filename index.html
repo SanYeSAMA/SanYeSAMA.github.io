@@ -3,98 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>安全访问检测</title>
+    <title>正在跳转...</title>
     <style>
         :root {
-            --primary-color: #007AFF;
-            --bg-color: #f5f5f7;
-            --text-main: #1d1d1f;
-            --text-sub: #86868b;
+            --primary-color: #4cd964; /* 微信常用的安全绿 */
+            --bg-overlay: rgba(0, 0, 0, 0.85);
         }
 
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 禁止背景滚动 */
+            background-color: #000;
+            font-family: -apple-system, sans-serif;
         }
 
-        .card {
-            width: 85%;
-            max-width: 400px;
-            background: white;
-            padding: 40px 24px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        /* 全屏遮罩层 */
+        .fullscreen-guide {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-overlay);
+            display: flex;
+            flex-direction: column;
+            color: white;
+            z-index: 9999;
+        }
+
+        /* 右上角引导指示 */
+        .arrow-box {
+            align-self: flex-end;
+            margin-top: 10px;
+            margin-right: 20px;
+            text-align: right;
+        }
+
+        .arrow-svg {
+            width: 60px;
+            height: 60px;
+            animation: bounce 1.5s infinite;
+        }
+
+        /* 中间内容区 */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 40px;
             text-align: center;
         }
 
-        .icon-area {
-            font-size: 48px;
-            margin-bottom: 20px;
+        .icon-globe {
+            font-size: 64px;
+            margin-bottom: 24px;
         }
 
         h1 {
-            font-size: 20px;
-            color: var(--text-main);
-            margin: 0 0 12px 0;
-            font-weight: 600;
+            font-size: 22px;
+            margin-bottom: 15px;
+            font-weight: 500;
         }
 
-        p {
-            font-size: 14px;
-            color: var(--text-sub);
-            line-height: 1.6;
-            margin: 0 0 24px 0;
-        }
-
-        .dots {
-            display: inline-block;
-            background: #f2f2f7;
-            padding: 2px 10px;
-            border-radius: 6px;
+        .highlight {
             color: var(--primary-color);
             font-weight: bold;
-            animation: pulse 2s infinite;
         }
 
-        /* 复制区域样式 */
-        .copy-box {
-            background: #f9f9fb;
-            border: 1px dashed #d2d2d7;
-            padding: 12px;
-            border-radius: 12px;
+        /* 复制区域 */
+        .copy-section {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 40px;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+        }
+
+        .url-text {
             font-family: monospace;
-            font-size: 13px;
-            color: #515154;
+            background: rgba(0,0,0,0.3);
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: block;
             word-break: break-all;
-            margin-bottom: 16px;
         }
 
         .btn-copy {
-            background: var(--primary-color);
-            color: white;
+            background: white;
+            color: black;
             border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
+            padding: 12px 0;
             width: 100%;
-            transition: opacity 0.2s;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 15px;
         }
 
-        .btn-copy:active {
-            opacity: 0.7;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.95); }
-            100% { opacity: 1; transform: scale(1); }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-10px) translateX(5px); }
         }
     </style>
     
@@ -103,12 +118,10 @@
         var isWeChat = /micromessenger/.test(ua);
         var isQQ = /qq\//.test(ua);
 
-        // 如果是外部浏览器，直接跳转
         if (!isWeChat && !isQQ) {
             window.location.href = "https://www.r36844582.nyat.app:65286";
         }
 
-        // 一键复制功能
         function copyUrl() {
             var url = "SanYeSAMA.github.io";
             var oInput = document.createElement('input');
@@ -117,24 +130,29 @@
             oInput.select();
             document.execCommand("Copy");
             oInput.remove();
-            alert("地址已复制，请在浏览器地址栏粘贴访问");
+            alert("地址已复制，请打开浏览器粘贴访问");
         }
     </script>
 </head>
 <body>
 
-<div class="card">
-    <div class="icon-area">🌐</div>
-    <h1>请使用浏览器访问</h1>
-    <p>
-        由于当前环境限制，请点击右上角 <span class="dots">···</span><br>
-        选择 <strong>在浏览器中打开</strong>
-    </p>
-    
-    <div style="margin-top: 30px; border-top: 1px solid #eee; padding: 20px;">
-        <p style="margin: 15px 0 8px 0;">或者手动复制地址：</p>
-        <div class="copy-box" id="urlText">SanYeSAMA.github.io</div>
-        <button class="btn-copy" onclick="copyUrl()">一键复制地址</button>
+<div class="fullscreen-guide">
+    <div class="arrow-box">
+        <svg class="arrow-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M80 20L50 20M80 20L80 50M80 20L20 80" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p style="margin-top: 5px; font-size: 16px;">点击右上角</p>
+    </div>
+
+    <div class="content">
+        <div class="icon-globe">🌐</div>
+        <h1>请选择 <span class="highlight">“在浏览器打开”</span></h1>
+        <p style="opacity: 0.8; line-height: 1.6;">当前环境无法直接访问<br>请切换至系统自带浏览器以继续</p>
+
+        <div class="copy-section">
+            <span class="url-text">SanYeSAMA.github.io</span>
+            <button class="btn-copy" onclick="copyUrl()">一键复制网址</button>
+        </div>
     </div>
 </div>
 
