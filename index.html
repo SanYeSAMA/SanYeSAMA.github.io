@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>浏览器检测</title>
+    <title>SecurityCheck</title>
     <script>
         // 获取浏览器的 userAgent
         var ua = navigator.userAgent.toLowerCase();
@@ -18,6 +18,29 @@
     </script>
 </head>
 <body>
-    <h1>请点击右上角﹒﹒﹒，选择在系统浏览器打开</h1>
+<style>
+    .guide-container {
+        text-align: center;
+        padding: 40px 20px;
+        color: #2c3e50;
+    }
+    .dots {
+        display: inline-block;
+        background: #eee;
+        padding: 2px 8px;
+        border-radius: 4px;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+</style>
+
+<div class="guide-container">
+    <h1 style="font-size: 1.5rem;">请点击右上角 <span class="dots">···</span></h1>
+    <p style="margin-top: 15px; color: #7f8c8d;">为了更好的体验，请选择在系统浏览器中打开</p>
+</div>
 </body>
 </html>
