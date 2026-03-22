@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>浏览器检测</title>
+    <script>
+        // 获取浏览器的 userAgent
+        var ua = navigator.userAgent.toLowerCase();
+
+        // 判断是否是微信或QQ浏览器
+        var isWeChat = /micromessenger/.test(ua);
+        var isQQ = /qq\//.test(ua);
+
+        // 如果不是微信也不是QQ，则跳转
+        if (!isWeChat && !isQQ) {
+            window.location.href = "https://www.r36844582.nyat.app:65286";
+        }
+    </script>
+</head>
+<body>
+    <h1>请点击右上角﹒﹒﹒，选择在系统浏览器打开</h1>
+</body>
+</html>
