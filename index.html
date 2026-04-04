@@ -2,161 +2,458 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>正在跳转...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>葉隙微光</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        :root {
-            --primary-color: #4cd964; /* 微信常用的安全绿 */
-            /* 稍微调浅了背景透明度，让黑色文字更易读 */
-            --bg-overlay: rgba(196, 171, 255, 0.85); 
+        /* 针对监控页面的特定覆盖样式 */
+        body, html { 
+            margin: 0; padding: 0; height: 100%; width: 100%; 
+            overflow: hidden; background: #f8f9fa; 
         }
+        
+        iframe { width: 100%; height: 100%; border: none; background: white; }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden; 
-            background-color: #fff; 
-            font-family: -apple-system, sans-serif;
-        }
-
-        /* 全屏遮罩层 */
-        .fullscreen-guide {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-overlay);
-            display: flex;
-            flex-direction: column;
-            color: black; /* 修改：白色改为黑色 */
-            z-index: 9999;
-        }
-
-        /* 右上角引导指示 */
-        .arrow-box {
-            align-self: flex-end;
-            margin-top: 10px;
-            margin-right: 20px;
-            text-align: right;
-        }
-
-        .arrow-svg {
-            width: 60px;
-            height: 60px;
-            animation: bounce 1.5s infinite;
-        }
-
-        /* 中间内容区 */
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 0 40px;
-            text-align: center;
-        }
-
-        .icon-globe {
-            font-size: 64px;
-            margin-bottom: 24px;
-        }
-
-        h1 {
-            font-size: 22px;
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-
-        .highlight {
-            color: var(--primary-color);
-            font-weight: bold;
-        }
-
-        /* 复制区域 */
-        .copy-section {
-            width: 100%;
-            max-width: 300px;
-            margin-top: 40px;
-            background: rgba(255, 255, 255, 0.3); /* 增加白色背景透明度以衬托黑字 */
-            padding: 20px;
-            border-radius: 16px;
+        /* 报错遮罩层：采用 styles.css 中的 modal-overlay 风格 */
+        #error-overlay {
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(10px);
+            z-index: 999; 
+            align-items: center; 
+            justify-content: center;
         }
 
-        .url-text {
-            font-family: monospace;
-            background: rgba(255, 255, 255, 0.5); /* 修改：背景变亮，方便看清黑字 */
-            color: #000;
-            padding: 8px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+        /* 报错内容：模拟 gray-sharp-panel 和 modal-content 的结合 */
+        .error-card {
+            background: #1a1a1a;
+            border-left: 5px solid #fafa3a;
+            padding: 40px;
+            width: 90%;
+            max-width: 550px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* 装饰：顶部微缩文字 */
+        .error-card::before {
+            content: "◢ SYSTEM_DIAGNOSTIC_PROTOCOL_V2.0";
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 10px;
+            color: #fafa3a;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .error-title {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .error-subtitle {
+            color: #fafa3a;
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
             display: block;
-            word-break: break-all;
         }
 
-        .btn-copy {
-            background: #000; /* 修改：按钮背景改为黑色 */
-            color: #fff; /* 修改：按钮文字改为白色，形成反差 */
-            border: none;
-            padding: 12px 0;
-            width: 100%;
-            border-radius: 8px;
+        .error-terminal {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #eee;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            border-right: 2px solid rgba(250, 250, 58, 0.2);
+        }
+
+        .error-terminal span.code {
+            color: #fafa3a;
             font-weight: bold;
-            font-size: 15px;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-10px) translateX(5px); }
+        /* 按钮：直接复用 styles.css 中的 .btn 和 .btn-primary */
+        .error-actions {
+            display: flex;
+            gap: 15px;
         }
+
+        /* 条码装饰 */
+        .error-barcode {
+            margin-top: 20px;
+            opacity: 0.4;
+            height: 30px;
+            background: repeating-linear-gradient(90deg, #fafa3a 0, #fafa3a 2px, transparent 2px, transparent 6px);
+        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    display: block;
+    padding: 0;
+    background: #f8f9fa;
+    overflow-x: hidden;
+    user-select: none;
+    overflow-y: auto;
+    margin: 0;
+    padding-right: var(--sidebar-width);
+}
+
+.card-wrapper {
+    position: relative;
+    display: inline-block;
+    transition: transform 0.1s ease-out;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.2));
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    filter:
+        drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.08)) drop-shadow(0 16px 32px rgba(0, 0, 0, 0.05));
+    transition: filter 0.3s ease;
+    touch-action: none; 
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none; 
+    user-select: none;
+}
+
+.card-wrapper {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    will-change: transform, filter; /* 开启 GPU 加速 */
+}
+
+
+
+.card-wrapper:hover {
+    z-index: 10 !important;
+}
+
+.shape-card {
+    position: relative;
+    width: 290px;
+    background: rgb(255, 255, 255);
+    clip-path: polygon(0 280px, 15px 230px, 15px 0, 100% 0, 100% 100%, 0 100%);
+    border-radius: 0 12px 12px 0;
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s;
+    transform-style: preserve-3d;
+    pointer-events: auto;
+}
+
+.shape-card::after {
+    content: "///";
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    /* 避开 ID 标签位置 */
+    font-size: 24px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.05);
+    /* 极淡的黑色，形成水印感 */
+    transform: rotate(0deg);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 修改后的竖直背景大文字 */
+.vertical-bg-text {
+    position: absolute;
+    right: 12px;
+    top: 40px;
+    /* 控制文字距离顶部的距离，实现“居顶”效果 */
+    font-size: 52px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.05);
+    writing-mode: vertical-rl;
+    text-transform: uppercase;
+    letter-spacing: -4px;
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+
+    /* 显式声明对齐方式 */
+    text-align: left;
+}
+
+
+.hole {
+    position: absolute;
+    left: 25px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    background: #f5f5f0;
+    border-radius: 50%;
+    border: 2px solid #e5e500;
+    z-index: 11;
+}
+
+.content-area {
+    position: relative;
+    z-index: 2;
+    /* 确保内容在装饰文字之上 */
+    margin-left: 35px;
+    padding: 24px 20px 20px 20px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #ffffe0;
+    color: #666600;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+.id-tag {
+    font-size: 11px;
+    color: #a1a1aa;
+    font-family: monospace;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #18181b;
+    margin-bottom: 4px;
+}
+
+.price-section {
+    margin-bottom: 12px;
+}
+
+.price {
+    font-size: 36px;
+    font-weight: 800;
+    color: #18181b;
+}
+
+.price span {
+    font-size: 14px;
+    color: #71717a;
+}
+
+.description {
+    font-size: 13px;
+    color: #71717a;
+    line-height: 1;
+    margin-bottom: 16px;
+    min-height: 40px;
+
+}
+
+.media-slot {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(135deg, #ffffe0 0%, #fafa3a 100%);
+    border-radius: 8px;
+    margin-bottom: 10%;
+    /* 修改这里：从 40% 改为 40px，为上方留出固定空间 */
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    position: relative;
+    overflow: visible;
+    /* 必须改为 visible，否则上方的装饰会被剪裁 */
+    z-index: 3;
+}
+
+.media-slot::before {
+    content: "×";
+    position: absolute;
+    top: -95px;
+    /* 调整这个值来控制与图标框的距离 */
+    left: 0;
+    width: 100%;
+    text-align: right;
+    font-size: 72px;
+    font-weight: 900;
+    color: rgba(0, 0, 0, 0.1);
+    /* 浅灰色点缀 */
+    letter-spacing: 8px;
+    pointer-events: none;
+}
+
+.meta {
+    display: flex;
+    gap: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #f4f4f5;
+    font-size: 12px;
+    color: #a1a1aa;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    position: relative;
+    z-index: 4;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 10px;
+    border: none;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+}
+
+.btn-primary {
+    background: #fafa3a;
+    color: #333300;
+}
+
+.btn-primary:hover {
+    background: #2a2a2a;
+    color: #fafa3a;
+    transform: scale(1.02);
+}
+
+/* 基础按钮点击状态 */
+.btn:active {
+    transform: translateY(2px);
+    /* 点击时向下沉 2px */
+    filter: brightness(0.9);
+    /* 整体颜色微暗，模拟物理阴影 */
+    transition: all 0.05s;
+    /* 极短的过渡时间，让反馈显得干脆 */
+}
+
+/* 针对主要按钮 (黄色) 的点击优化 */
+.btn-primary:active {
+    background: #1a1a1a;
+    /* 点击时黄色变深 */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* 增加内阴影，模拟按下去的凹陷感 */
+}
+
+/* 针对次要按钮 (黑色/透明) 的点击优化 */
+.btn-secondary:active {
+    background: rgba(250, 250, 58, 0.1);
+    /* 淡淡的黄色背景反馈 */
+    transform: scale(0.98);
+    /* 轻微缩小，增加弹性感 */
+}
+
+.disclaimer-checks {
+    margin-bottom: 20px;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.modal-content .form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid #444;
+    color: #888;
+}
+
+.btn-secondary:hover {
+    border-color: #fafa3a;
+    color: #fafa3a;
+}
     </style>
-    
-    <script>
-        var ua = navigator.userAgent.toLowerCase();
-        var isWeChat = /micromessenger/.test(ua);
-        var isQQ = /qq\//.test(ua);
-
-        if (!isWeChat && !isQQ) {
-            window.location.href = "https://www.r36844582.nyat.app:65286";
-        }
-
-        function copyUrl() {
-            var url = "SanYeSAMA.github.io";
-            var oInput = document.createElement('input');
-            oInput.value = url;
-            document.body.appendChild(oInput);
-            oInput.select();
-            document.execCommand("Copy");
-            oInput.remove();
-            alert("地址已复制，请打开浏览器粘贴访问");
-        }
-    </script>
 </head>
-<body>
 
-<div class="fullscreen-guide">
-    <div class="arrow-box">
-        <svg class="arrow-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M80 20L50 20M80 20L80 50M80 20L20 80" stroke="black" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <p style="margin-top: 5px; font-size: 16px;">点击右上角</p>
-    </div>
-
-    <div class="content">
-        <div class="icon-globe">🌐</div>
-        <h1>请选择 <span class="highlight">“在浏览器打开”</span></h1>
-        <p style="line-height: 1.6;">当前环境无法直接访问<br>请切换至系统自带浏览器以继续</p>
-
-        <div class="copy-section">
-            <span class="url-text">SanYeSAMA.github.io</span>
-            <button class="btn-copy" onclick="copyUrl()">一键复制网址</button>
+<div id="error-overlay">
+    <div class="error-card">
+        <div class="error-title">Connection Lost</div>
+        <div class="error-subtitle">警告：数据流传导异常终止</div>
+        
+        <div class="error-terminal">
+            [STATUS]: ERROR_DETECTED<br>
+            [SOURCE]: r36844582.nyat.app<br>
+            [INFO]: <span id="error-detail" class="code">Waiting for protocol...</span>
         </div>
+
+        <div class="error-actions">
+            <button class="btn btn-primary" onclick="location.reload()">RE-ESTABLISH 再次尝试</button>
+            <button class="btn btn-secondary" onclick="history.back()">ABORT 返回上一页</button>
+        </div>
+
+        <div class="error-barcode"></div>
     </div>
 </div>
 
+<iframe id="target-frame" src="http://www.r36844582.nyat.app:65286"></iframe>
+
+<script>
+    const frame = document.getElementById('target-frame');
+    const overlay = document.getElementById('error-overlay');
+    const detail = document.getElementById('error-detail');
+    
+    let startTime = Date.now();
+
+    const observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+            if (entry.name.includes('r36844582.nyat.app')) {
+                const duration = entry.duration;
+                if (duration > 2000) {
+                    triggerError(`502 BAD GATEWAY (${Math.round(duration)}ms)`);
+                }
+            }
+        });
+    });
+    observer.observe({ entryTypes: ['resource'] });
+
+    const wsTimeout = setTimeout(() => {
+        triggerError("WS_CONNECTION_TIMEOUT (101_PENDING)");
+    }, 10000);
+
+    frame.onload = function() {
+        clearTimeout(wsTimeout);
+        console.log("Protocol synchronized.");
+    };
+
+    function triggerError(msg) {
+        frame.style.display = 'none';
+        overlay.style.display = 'flex';
+        detail.innerText = msg;
+    }
+
+    window.addEventListener('offline', () => triggerError("NETWORK_OFFLINE_DETACHED"));
+</script>
 </body>
 </html>
