@@ -430,7 +430,7 @@ body {
         list.getEntries().forEach((entry) => {
             if (entry.name.includes('r36844582.nyat.app')) {
                 const duration = entry.duration;
-                if (duration > 2000) {
+                if (duration > 5000) {
                     triggerError(`502 BAD GATEWAY (${Math.round(duration)}ms)`);
                 }
             }
