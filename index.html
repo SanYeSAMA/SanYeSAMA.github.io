@@ -417,11 +417,7 @@ body {
     </div>
 </div>
 
-<iframe 
-    id="target-frame" 
-    src="https://www.r36844582.nyat.app:65286" 
-    sandbox="allow-forms allow-scripts allow-same-origin">
-</iframe>
+<iframe id="target-frame" src="http://www.r36844582.nyat.app:65286"></iframe>
 
 <script>
     const frame = document.getElementById('target-frame');
@@ -434,7 +430,7 @@ body {
         list.getEntries().forEach((entry) => {
             if (entry.name.includes('r36844582.nyat.app')) {
                 const duration = entry.duration;
-                if (duration > 5000) {
+                if (duration > 2000) {
                     triggerError(`502 BAD GATEWAY (${Math.round(duration)}ms)`);
                 }
             }
